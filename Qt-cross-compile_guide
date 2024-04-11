@@ -1,0 +1,45 @@
+In this guide, my username is nam
+
+cross-compile Qt5 for raspberry pi 4
+HOST:
+    	wget -c https://download.qt.io/archive/qt/5.15/5.15.13/single/qt-everywhere-opensource-src-5.15.13.tar.xz
+	wget -c https://releases.linaro.org/components/toolchain/binaries/latest-7/arm-linux-gnueabihf/gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf.tar.xz
+	wget -c https://releases.linaro.org/components/toolchain/binaries/latest-7/arm-linux-gnueabihf/sysroot-glibc-linaro-2.25-2019.12-arm-linux-gnueabihf.tar.xz
+
+    	unxz qt-everywhere...
+    	tar -xvf qt-everywhere...
+    	unxz gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf.tar.xz
+    	tar -xvf gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf.tar
+    	unxz sysroot-glibc-linaro-2.25-2019.12-arm-linux-gnueabihf.tar.xz
+    	tar -xvf sysroot-glibc-linaro-2.25-2019.12-arm-linux-gnueabihf.tar
+
+    	sudo mkdir -p /usr/local/raspiTool
+   	sudo cp gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf -r /usr/local/raspiTool/
+   	sudo cp sysroot-glibc-linaro-2.25-2019.12-arm-linux-gnueabihf -r /usr/local/raspiTool/
+   	cd qt-everywhere-src-5.15.13/
+   	./configure -platform linux-g++ -release -device linux-rasp-pi4-v3d-g++ -sysroot /usr/local/raspiTool/sysroot-glibc-linaro-2.25-2019.12-arm-linux-gnueabihf -prefix ~/Qt5ForPi -hostprefix ~/Qt5forPi -device-option CROSS_COMPILE=/usr/local/raspiTool/gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf- -nomake tests -nomake examples -no-opengl -opensource -confirm-license -reduce-exports -make libs
+   	make -j8
+   	sudo make install
+   	cd /usr/local/raspiTool/sysroot-glibc-linaro-2.25-2019.12-arm-linux-gnueabihf/home/namubuntu/
+   	scp -r Qt5ForPi pi@192.168.1.162:Qt5ForPi
+
+	sudo apt install qtcreator
+	open qtcreator and setup compiler, qtversion, device
+
+RASPBERRY PI:
+	wget -c http://sourceforge.net/projects/dejavu/files/dejavu/2.37/dejavu-fonts-ttf-2.37.zip
+	unzip dejavu-fonts-ttf-2.37.zip
+	mkdir /home/pi/Qt5ForPi/fonts
+	mv dejavu-fonts-ttf-2.37/ttf/* -r /home/pi/Qt5ForPi/fonts
+    	export QT_QPA_FONTDIR=/home/pi/Qt5ForPi/fonts
+    	export QT_QPA_PLATFORM_PLUGIN_PATH=/home/pi/Qt5ForPi/plugins/platforms
+    	export LD_LIBRARY_PATH="/home/pi/Qt5ForPi/lib":$LD_LIBRARY_PATH
+    	export QT_PLUGIN_PATH=/home/pi/Qt5ForPi/plugins
+    	export QT_QPA_PLATFORM=linuxfb:fb=/dev/fb0
+    	export QML2_IMPORT_PATH=/home/pi/Qt5ForPi/qml/:$QML2_IMPORT_PATH
+    	export QT_QPA_EGLFS_FB=/dev/fb0
+
+if you use raspberry pi 64bit, use this cmd at the first time:
+ 	sudo dpkg --add-architecture armhf
+ 	sudo apt update
+ 	sudo apt-get install libc6:armhf libstdc++6:armhf
